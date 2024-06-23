@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Matrix Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .matrix-dimensions {
+            margin-bottom: 20px;
+        }
+
+        .matrix-dimensions input {
+            width: 60px;
+            margin: 0 10px;
+        }
+
+        .matrix-inputs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .matrix {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .matrix-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .matrix input {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+            width: 60px;
+        }
+
+        .buttons {
+            margin-bottom: 20px;
+        }
+
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+
+        .result {
+            font-size: 18px;
+            font-weight: bold;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Matrix Calculator</h1>
+        <div class="matrix-dimensions">
+            <label for="rows">Rows:</label>
+            <input type="number" id="rows" value="2" min="1">
+            <label for="cols">Columns:</label>
+            <input type="number" id="cols" value="2" min="1">
+            <button onclick="setMatrixDimensions()">Set Dimensions</button>
+        </div>
+        <div class="matrix-inputs">
+            <div class="matrix" id="matrixA">
+                <h2>Matrix A</h2>
+                <div class="matrix-grid"></div>
+            </div>
+            <div class="matrix" id="matrixB">
+                <h2>Matrix B</h2>
+                <div class="matrix-grid"></div>
+            </div>
+        </div>
+        <div class="buttons">
+            <button onclick="addMatrices()">Add</button>
+            <button onclick="subtractMatrices()">Subtract</button>
+            <button onclick="multiplyMatrices()">Multiply</button>
+            <button onclick="divideMatrices()">Divide</button>
+            <button onclick="solveEquations()">Solve Equations</button>
+        </div>
+        <div class="result">
+            <h2>Result</h2>
+            <pre id="result"></pre>
+        </div>
+    </div>
+    <script>
+        function setMatrixDimensions() {
+            const rows = parseInt(document.getElementById('rows').value);
+            const cols = parseInt(document.getElementById('cols').value);
+            createMatrixInputs('matrixA', rows, cols);
+            createMatrixInputs('matrixB', rows, cols);
+        }
+
+        function createMatrixInputs(matrixId, rows, cols) {
+            const matrixGrid = document.querySelector(`#${matrixId} .matrix-grid`);
+            matrixGrid.style.gridTemplateRows = `repeat(${rows}, auto)`;
+            matrixGrid.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+            matrixGrid.innerHTML = '';
+
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.id = `${matrixId}${i}${j}`;
+                    matrixGrid.appendChild(input);
+                }
+            }
+        }
+
+        function getMatrixValues(matrixId, rows, cols) {
+            const matrix = [];
+            for (let i = 0; i < rows; i++) {
+                const row = [];
+                for (let j = 0; j < cols; j++) {
+                    row.push(parseFloat(document.getElementById(`${matrixId}${i}${j}`).value) || 0);
+                }
+                matrix.push(row);
+            }
+            return matrix;
+        }
+
+        function displayResult(resultMatrix) {
+            const resultElement = document.getElementById('result');
+            resultElement.textContent = resultMatrix.map(row => `[${row.join(', ')}]`).join('\n');
+        }
+
+        function addMatrices() {
+            const rows = parseInt(document.getElementById('rows').value);
+            const cols = parseInt(document.getElementById('cols').value);
+            const matrixA = getMatrixValues('matrixA', rows, cols);
+            const matrixB = getMatrixValues('matrixB', rows, cols);
+
+            const result = matrixA.map((row, i) => row.map((val, j) => val + matrixB[i][j]));
+            displayResult(result);
+        }
+
+        function subtractMatrices() {
+            const rows = parseInt(document.getElementById('rows').value);
+            const cols = parseInt(document.getElementById('cols').value);
+            const matrixA = getMatrixValues('matrixA', rows, cols);
+            const matrixB = getMatrixValues('matrixB', rows, cols);
+
+            const result = matrixA.map((row, i) => row.map((val, j) => val - matrixB[i][j]));
+            displayResult(result);
+        }
+
+        function multiplyMatrices() {
+            const rowsA = parseInt(document.getElementById('rows').value);
+            const colsA = parseInt(document.getElementById('cols').value);
+            const rowsB = colsA;
+            const colsB = colsA;
+            const matrixA = getMatrixValues('matrixA', rowsA, colsA);
+            const matrixB = getMatrixValues('matrixB', rowsB, colsB);
+
+            const result = Array.from({ length: rowsA }, () => Array(colsB).fill(0));
+
+            for (let i = 0; i < rowsA; i++) {
+                for (let j = 0; j < colsB; j++) {
+                    for (let k = 0; k < colsA; k++) {
+                        result[i][j] += matrixA[i][k] * matrixB[k][j];
+                    }
+                }
+            }
+            displayResult(result);
+        }
+
+        function divideMatrices() {
+            // 행렬 나누기는 보통 역행렬을 곱하는 것으로 대체됩니다.
+            // 여기서는 간단하게 역행렬을 구하고 곱하는 과정을 구현합니다.
+            // 행렬 A의 역행렬과 행렬 B를 곱해서 결과를 구합니다.
+            const rows = parseInt(document.getElementById('rows').value);
+            const cols = parseInt(document.getElementById('cols').value);
+            if (rows !== 2 || cols !== 2) {
+                alert('행렬 나누기는 2x2 행렬에 대해서만 지원됩니다.');
+                return;
+            }
+            const matrixA = getMatrixValues('matrixA', rows, cols);
+            const matrixB = getMatrixValues('matrixB', rows, cols);
+            const detA = matrixA[0][0] * matrixA[1][1] - matrixA[0][1] * matrixA[1][0];
+            if (detA === 0) {
+                alert('행렬 A는 역행렬이 없습니다.');
+                return;
+            }
+            const invA = [
+                [matrixA[1][1] / detA, -matrixA[0][1] / detA],
+                [-matrixA[1][0] / detA, matrixA[0][0] / detA]
+            ];
+            const result = multiplyTwoMatrices(invA, matrixB);
+            displayResult(result);
+        }
+
+        function multiplyTwoMatrices(matrixA, matrixB) {
+            const rowsA = matrixA.length;
+            const colsA = matrixA[0].length;
+            const rowsB = colsA;
+            const colsB = matrixB[0].length;
+
+            const result = Array.from({ length: rowsA }, () => Array(colsB).fill(0));
+
+            for (let i = 0; i < rowsA; i++) {
+                for (let j = 0; j < colsB; j++) {
+                    for (let k = 0; k < colsA; k++) {
+                        result[i][j] += matrixA[i][k] * matrixB[k][j];
+                    }
+                }
+            }
+            return result;
+        }
+
+        function solveEquations() {
+            const rows = parseInt(document.getElementById('rows').value);
+            const cols = parseInt(document.getElementById('cols').value);
+            if (rows !== 2 || cols !== 2) {
+                alert('연립방정식 풀기는 2x2 행렬에 대해서만 지원됩니다.');
+                return;
+            }
+            const matrixA = getMatrixValues('matrixA', rows, cols);
+            const matrixB = getMatrixValues('matrixB', rows, 1); // B는 열벡터로 가정합니다.
+
+            const detA = matrixA[0][0] * matrixA[1][1] - matrixA[0][1] * matrixA[1][0];
+            if (detA === 0) {
+                alert('연립방정식의 해가 없습니다.');
+                return;
+            }
+
+            const invA = [
+                [matrixA[1][1] / detA, -matrixA[0][1] / detA],
+                [-matrixA[1][0] / detA, matrixA[0][0] / detA]
+            ];
+
+            const result = multiplyTwoMatrices(invA, matrixB);
+            displayResult(result);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setMatrixDimensions();
+        });
+    </script>
+</body>
+</html>
